@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       publicId: result.public_id,
+      downloadUrl: result.secure_url,
       status: 200,
     });
   } catch (error: any) {
