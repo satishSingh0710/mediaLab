@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { auth } from "@clerk/nextjs/server";
 import { PrismaClient } from "@prisma/client";
-
+import streamifier from "streamifier";
 const prisma = new PrismaClient();
 
 cloudinary.config({
@@ -19,7 +19,7 @@ interface CloudinaryUploadResult {
 }
 
 export async function POST(request: NextRequest) {
-  const userId = await auth();
+  const {userId} = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -46,34 +46,61 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // Convert file to buffer
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    console.log("📁 Uploading video:", file.name);
 
-    // Upload to Cloudinary with video settings
-    const result = await new Promise<CloudinaryUploadResult>(
-      (resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            folder: "next-cloudinary-videos", // Folder for videos
-            resource_type: "video", // Important: Specifies that it's a video upload
-            //   format: "mp4", // Ensures MP4 format for compatibility
-            transformation: [
-              { quality: "auto" }, // Auto-adjusts video quality
-              { fetch_format: "mp4" }, // Converts to best format for browser
-            ],
-          },
-          (error, result) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(result as CloudinaryUploadResult);
-            }
+    // // Convert file to buffer
+    // const bytes = await file.arrayBuffer();
+    // const buffer = Buffer.from(bytes);
+
+    // // Upload to Cloudinary with video settings
+    // const result = await new Promise<CloudinaryUploadResult>(
+    //   (resolve, reject) => {
+    //     const uploadStream = cloudinary.uploader.upload_stream(
+    //       {
+    //         folder: "next-cloudinary-videos", // Folder for videos
+    //         resource_type: "video", // Important: Specifies that it's a video upload
+    //         //   format: "mp4", // Ensures MP4 format for compatibility
+    //         transformation: [
+    //           { quality: "auto" }, // Auto-adjusts video quality
+    //           { fetch_format: "mp4" }, // Converts to best format for browser
+    //         ],
+    //       },
+    //       (error, result) => {
+    //         if (error) {
+    //           reject(error);
+    //         } else {
+    //           resolve(result as CloudinaryUploadResult);
+    //         }
+    //       }
+    //     );
+    //     uploadStream.end(buffer);
+    //   }
+    // );
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    const result: CloudinaryUploadResult = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: "next-cloudinary-videos",
+          resource_type: "video",
+          chunk_size: 6000000, // Upload in 6MB chunks
+          transformation: [
+            { quality: "auto" },
+            { fetch_format: "mp4" },
+          ],
+        },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result as CloudinaryUploadResult);
           }
-        );
-        uploadStream.end(buffer);
-      }
-    );
+        }
+      );
+
+      streamifier.createReadStream(buffer).pipe(uploadStream);
+    });
 
     const savedVideo = await prisma.video.create({
       data: {

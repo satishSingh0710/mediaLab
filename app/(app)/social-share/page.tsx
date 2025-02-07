@@ -19,7 +19,7 @@ export default function SocialShare() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [cloudinaryPublicId, setCloudinaryPublicId] = useState<string | null>(null);
   const [selectedFormat, setSelectedFormat] = useState<SocialFormat>("Instagram Square (1:1)");
-  const imageRef = useRef<HTMLInputElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     if(!cloudinaryPublicId) return;
@@ -43,7 +43,8 @@ export default function SocialShare() {
         method: "POST",
         body: formData,
       });
-
+       
+      console.log(response); 
       if (!response.ok) throw new Error("Upload failed");
 
       const data = await response.json();
@@ -59,7 +60,7 @@ export default function SocialShare() {
   const handleDownload = async () => {
     if (!uploadedImage) return;
 
-    const response = await fetch(uploadedImage);
+    const response = await fetch(imageRef.current?.src || uploadedImage);
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
 
@@ -83,7 +84,6 @@ export default function SocialShare() {
           {/* Upload Input */}
           <div className="form-control">
             <input
-              ref={imageRef}
               type="file"
               className="file-input file-input-bordered file-input-primary w-full text-gray-700 border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               onChange={handleUpload}
@@ -128,6 +128,8 @@ export default function SocialShare() {
                 crop="fill"
                 gravity="auto"
                 className="object-contain w-full h-full p-2 rounded-xl"
+                ref={imageRef}
+                onLoad={() => setIsTransforming(false)}
               />
             ) : !isUploading && !isTransforming ? (
               <p className="text-gray-500 text-lg">Upload an image to preview</p>
