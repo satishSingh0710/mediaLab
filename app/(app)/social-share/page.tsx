@@ -28,7 +28,7 @@ export default function SocialShare() {
       setIsTransforming(false);
     }, 3000);
     return () => clearTimeout(timeoutId);
-  }, [selectedFormat])
+  }, [selectedFormat, cloudinaryPublicId])
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsUploading(true);

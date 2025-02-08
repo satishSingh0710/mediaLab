@@ -9,6 +9,7 @@ function Home() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchVideos = useCallback(async () => {
     try {
       const response = await axios.get("/api/videos")
@@ -18,10 +19,14 @@ function Home() {
         throw new Error(" Unexpected response format");
 
       }
-    } catch (error) {
-      console.log(error);
-      setError("Failed to fetch videos")
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        setError(e.message)
+      } else {
+        setError("Failed to fetch videos")
+      }
 
+      console.log(error);
     } finally {
       setLoading(false)
     }
@@ -31,13 +36,13 @@ function Home() {
     fetchVideos()
   }, [fetchVideos])
 
-  const getFullVideoUrl = useCallback((publicId: string) => {
-    return getCldVideoUrl({
-      src: publicId,
-      width: 1920,
-      height: 1080,
-    })
-  }, [])
+  // const getFullVideoUrl = useCallback((publicId: string) => {
+  //   return getCldVideoUrl({
+  //     src: publicId,
+  //     width: 1920,
+  //     height: 1080,
+  //   })
+  // }, [])
 
   const getPreviewVideoUrl = useCallback((publicId: string) => {
     return getCldVideoUrl({
@@ -48,7 +53,7 @@ function Home() {
     })
   }, [])
 
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleDownload = useCallback(async (url: string, title: string) => {
     try {
       console.log(`Downloading: ${title}`);

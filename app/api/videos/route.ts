@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const videos = await prisma.video.findMany({
       orderBy: {
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
       },
     });
     return NextResponse.json(videos);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching videos:", error);
 
     let errorMessage = "Something went wrong in fetching videos";

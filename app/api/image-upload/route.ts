@@ -11,7 +11,7 @@ cloudinary.config({
 
 interface CloudinaryUploadResult {
   public_id: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export async function POST(request: NextRequest) {
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       downloadUrl: result.secure_url,
       status: 200,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
