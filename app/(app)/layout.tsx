@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useClerk, useUser } from "@clerk/nextjs";
+import { useClerk, useUser , UserButton} from "@clerk/nextjs";
 import Image from "next/image";
 import {
   LogOutIcon,
@@ -72,14 +72,15 @@ export default function AppLayout({
                 <>
                   <div className="avatar">
                     <div className="w-8 h-8 rounded-full">
-                      <Image
+                      {/* <Image
                         src={user.imageUrl}
                         alt={
                           user.username || user.emailAddresses[0].emailAddress
                         }
                         width={32}
                         height={32}
-                      />
+                      /> */}
+                      <UserButton />
                     </div>
                   </div>
                   <span className="text-sm truncate max-w-xs lg:max-w-md">
