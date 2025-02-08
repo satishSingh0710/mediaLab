@@ -77,6 +77,8 @@ export default function AppLayout({
                         alt={
                           user.username || user.emailAddresses[0].emailAddress
                         }
+                        width={32}
+                        height={32}
                       />
                     </div>
                   </div>
