@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useClerk, useUser , UserButton} from "@clerk/nextjs";
-import Image from "next/image";
+// import Image from "next/image";
 import {
   LogOutIcon,
   MenuIcon,
